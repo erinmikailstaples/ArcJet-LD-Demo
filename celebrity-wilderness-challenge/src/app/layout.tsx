@@ -1,40 +1,15 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
-import dynamic from 'next/dynamic';
+import { LDClient } from 'launchdarkly-js-client-sdk';
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+let ldClient;
 
-export const metadata: Metadata = {
-  title: "Celebrity Wilderness Challenge",
-  description: "AI-powered celebrity survival scenarios",
-};
+export default function RootLayout({ children }) {
+  if (typeof window !== 'undefined' && !ldClient) {
+    ldClient = LDClient.initialize(process.env.LAUNCHDARKLY_CLIENT_SIDE_ID, { key: 'anonymous' });
+  }
 
-const LDProvider = dynamic(() => import('../components/LDProvider'), { ssr: false });
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <LDProvider>
-          {children}
-        </LDProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

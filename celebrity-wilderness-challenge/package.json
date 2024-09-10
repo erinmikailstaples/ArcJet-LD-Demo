@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@arcjet/next": "^1.0.0-alpha.24",
-    "launchdarkly-react-client-sdk": "^3.4.0",
+    "launchdarkly-js-client-sdk": "^3.4.0",
     "next": "14.2.9",
     "react": "^18",
     "react-dom": "^18",
