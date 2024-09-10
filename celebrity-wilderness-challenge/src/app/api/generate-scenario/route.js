@@ -7,22 +7,21 @@ const replicate = new Replicate({
 });
 
 const aj = arcjet({
-  key: process.env.ARCJET_KEY!,
-  characteristics: ["userId"], // track requests by a custom user ID
+  key: process.env.ARCJET_KEY,
+  characteristics: ["userId"],
   rules: [
-    // Create a token bucket rate limit. Other algorithms are supported.
     tokenBucket({
-      mode: "LIVE", // will block requests. Use "DRY_RUN" to log only
-      refillRate: 5, // refill 5 tokens per interval
-      interval: 10, // refill every 10 seconds
-      capacity: 10, // bucket maximum capacity of 10 tokens
+      mode: "LIVE",
+      refillRate: 5,
+      interval: 10,
+      capacity: 10,
     }),
   ],
 });
 
-export async function GET(req: Request) {
-  const userId = "user123"; // Replace with your authenticated user ID
-  const decision = await aj.protect(req, { userId, requested: 5 }); // Deduct 5 tokens from the bucket
+export async function GET(req) {
+  const userId = "user123";
+  const decision = await aj.protect(req, { userId, requested: 5 });
   console.log("Arcjet decision", decision);
 
   if (decision.isDenied()) {
@@ -35,31 +34,13 @@ export async function GET(req: Request) {
   return NextResponse.json({ message: "Hello world" });
 }
 
-
-
-
-
-
-export const POST = arcjet(async (req) => {
+export async function POST(req) {
   const { celebrity, environment, userRole } = await req.json();
   
-  // Define rate limits based on user role
-  const rateLimits = {
-    "Couch Potato": 3,
-    "Survivalist Fanatic": 10,
-    "Reality TV Producer": 20
-  };
+  const result = await aj.protect(req, { userId: userRole, requested: 1 });
 
-  // Apply rate limiting
-  const rateLimit = rateLimits[userRole] || 3; // Default to Couch Potato if role is not recognized
-  const result = await arcjet.rateLimit({
-    key: userRole,
-    limit: rateLimit,
-    window: "1h"
-  });
-
-  if (!result.success) {
-    return Response.json({ error: "Rate limit exceeded" }, { status: 429 });
+  if (result.isDenied()) {
+    return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
 
   const prompt = `Generate a survival scenario for ${celebrity} in ${environment}.`;
@@ -69,5 +50,5 @@ export const POST = arcjet(async (req) => {
     { input: { prompt } }
   );
 
-  return Response.json({ scenario: output.join("") });
-});
+  return NextResponse.json({ scenario: output.join("") });
+}
