@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { LDClient } from 'launchdarkly-js-client-sdk';
+import { initialize, LDClient } from 'launchdarkly-js-client-sdk';
 import Image from "next/image";
 
 export default function Home() {
@@ -12,11 +12,19 @@ export default function Home() {
   const [enabledEnvironments, setEnabledEnvironments] = useState([]);
 
   useEffect(() => {
-    const ldClient = LDClient.initialize(process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_SIDE_ID, { key: 'anonymous' });
-    ldClient.on('ready', () => {
-      setEnabledCelebrities(ldClient.variation('enabledCelebrities', []));
-      setEnabledEnvironments(ldClient.variation('enabledEnvironments', []));
-    });
+    let client: LDClient;
+    async function initLD() {
+      client = await initialize(process.env.LAUNCHDARKLY_CLIENT_SIDE_ID!, { key: 'anonymous' });
+      await client.waitForInitialization();
+      setEnabledCelebrities(client.variation('enabledCelebrities', []));
+      setEnabledEnvironments(client.variation('enabledEnvironments', []));
+      console.log('Celebrities:', client.variation('enabledCelebrities', []));
+      console.log('Environments:', client.variation('enabledEnvironments', []));
+    }
+    initLD();
+    return () => {
+      client?.close();
+    };
   }, []);
 
   const generateScenario = async () => {
