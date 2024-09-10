@@ -6,7 +6,27 @@ const replicate = new Replicate({
 });
 
 export const POST = arcjet(async (req) => {
-  const { celebrity, environment } = await req.json();
+  const { celebrity, environment, userRole } = await req.json();
+  
+  // Define rate limits based on user role
+  const rateLimits = {
+    "Couch Potato": 3,
+    "Survivalist Fanatic": 10,
+    "Reality TV Producer": 20
+  };
+
+  // Apply rate limiting
+  const rateLimit = rateLimits[userRole] || 3; // Default to Couch Potato if role is not recognized
+  const result = await arcjet.rateLimit({
+    key: userRole,
+    limit: rateLimit,
+    window: "1h"
+  });
+
+  if (!result.success) {
+    return Response.json({ error: "Rate limit exceeded" }, { status: 429 });
+  }
+
   const prompt = `Generate a survival scenario for ${celebrity} in ${environment}.`;
   
   const output = await replicate.run(

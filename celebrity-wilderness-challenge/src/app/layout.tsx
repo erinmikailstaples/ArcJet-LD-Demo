@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { asyncWithLDProvider } from "launchdarkly-react-client-sdk";
+import dynamic from 'next/dynamic';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -19,12 +19,7 @@ export const metadata: Metadata = {
   description: "AI-powered celebrity survival scenarios",
 };
 
-const LDProvider = await asyncWithLDProvider({
-  clientSideID: process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_SIDE_ID!,
-  options: {
-    bootstrap: "localStorage",
-  },
-});
+const LDProvider = dynamic(() => import('../components/LDProvider'), { ssr: false });
 
 export default function RootLayout({
   children,
@@ -33,13 +28,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <LDProvider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <LDProvider>
           {children}
-        </body>
-      </LDProvider>
+        </LDProvider>
+      </body>
     </html>
   );
 }
