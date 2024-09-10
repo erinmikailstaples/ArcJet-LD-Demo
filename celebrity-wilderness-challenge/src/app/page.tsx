@@ -14,24 +14,20 @@ export default function Home() {
   useEffect(() => {
     let client: LDClient;
     async function initLD() {
-      const clientSideID = process.env.LAUNCHDARKLY_CLIENT_SIDE_ID;
-      if (!clientSideID) {
-        console.error('LaunchDarkly client-side ID is not set');
-        return;
-      }
-      client = await initialize(clientSideID, { key: 'anonymous' });
+      client = await initialize(process.env.LAUNCHDARKLY_CLIENT_SIDE_ID!, { key: 'anonymous' });
       await client.waitForInitialization();
-      setEnabledCelebrities(client.variation('enabledCelebrities', []));
-      setEnabledEnvironments(client.variation('enabledEnvironments', []));
-      console.log('Celebrities:', client.variation('enabledCelebrities', []));
-      console.log('Environments:', client.variation('enabledEnvironments', []));
+      const celebrities = client.variation('enabledCelebrities', []);
+      const environments = client.variation('enabledEnvironments', []);
+      console.log('Celebrities:', celebrities);
+      console.log('Environments:', environments);
+      setEnabledCelebrities(celebrities);
+      setEnabledEnvironments(environments);
     }
     initLD();
     return () => {
       client?.close();
     };
   }, []);
-  
 
   const generateScenario = async () => {
     const response = await fetch("/api/generate-scenario", {
