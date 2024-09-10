@@ -7,7 +7,7 @@ const replicate = new Replicate({
 });
 
 const aj = arcjet({
-  key: process.env.ARCJET_KEY!, // Get your site key from https://app.arcjet.com
+  key: process.env.ARCJET_KEY!,
   characteristics: ["userId"], // track requests by a custom user ID
   rules: [
     // Create a token bucket rate limit. Other algorithms are supported.
