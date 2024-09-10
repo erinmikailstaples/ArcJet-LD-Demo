@@ -52,7 +52,7 @@ export default function Home() {
   const updateScenarioPrompt = (client: LDClient) => {
     // Use LaunchDarkly's AI model prompt flag
     const prompt = client.variation('ai-model-prompt', {
-      prompt: 'Generate a survival scenario for {celebrity} in {environment}.',
+      prompt: 'Generate a survival scenario in 500 characters or less for {celebrity} in {environment}.',
       parameters: {
         celebrity: '{celebrity}',
         environment: '{environment}'
