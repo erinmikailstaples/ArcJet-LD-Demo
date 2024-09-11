@@ -13,13 +13,13 @@ export default function Home() {
 
   // Lists of celebrities and environments
   const celebrities = [
-    "Nicolas Cage", "Lady Gaga", "Snoop Dogg", "Martha Stewart", "Kanye West",
+    "Nicolas Cage", "Bad Bunny", "King Charles", "Justin Bieber", "Lady Gaga", "Snoop Dogg", "Martha Stewart", "Kanye West",
     "Betty White", "Gordon Ramsay", "Beyoncé", "Jeff Goldblum", "Dolly Parton",
     "Bill Nye the Science Guy", "Flavor Flav", "The Rock's Eyebrow", "Chuck Norris", "Weird Al Yankovic"
   ];
 
   const environments = [
-    "Inside a Giant Burrito", "Underwater Disco", "Haunted IKEA", "Jurassic Park Gift Shop",
+    "Inside a Giant Burrito","Biork Hive Mind", "just Twitter", "The White House", "OnlyFans", "Underwater Disco", "Haunted IKEA", "Jurassic Park Gift Shop",
     "Sentient Cloud City", "Chocolate Factory Gone Wrong", "Upside-Down Skyscraper",
     "Abandoned Theme Park on Mars", "Inside a Giant's Pocket", "Miniature Golf Course Jungle",
     "Intergalactic Space Truck Stop", "Zombie-Infested Shopping Mall",
