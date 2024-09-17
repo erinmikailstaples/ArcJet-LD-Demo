@@ -18,6 +18,7 @@ export const metadata: Metadata = {
   description: "Generate hilarious survival scenarios for celebrities in bizarre environments",
 };
 
+
 export default function RootLayout({
   children,
 }: Readonly<{

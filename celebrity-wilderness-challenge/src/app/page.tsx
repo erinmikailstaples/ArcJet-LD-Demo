@@ -11,32 +11,12 @@ export default function Home() {
   const [ldClient, setLdClient] = useState<LDClient | null>(null);
   const [scenarioPrompt, setScenarioPrompt] = useState("");
 
-  // Lists of celebrities and environments
-  const celebrities = [
-    "Nicolas Cage", "Bad Bunny", "King Charles", "Justin Bieber", "Lady Gaga", "Snoop Dogg", "Martha Stewart", "Kanye West",
-    "Betty White", "Gordon Ramsay", "Beyoncé", "Jeff Goldblum", "Dolly Parton",
-    "Bill Nye the Science Guy", "Flavor Flav", "The Rock's Eyebrow", "Chuck Norris", "Weird Al Yankovic"
-  ];
-
-  const environments = [
-    "Inside a Giant Burrito","Biork Hive Mind", "just Twitter", "The White House", "OnlyFans", "Underwater Disco", "Haunted IKEA", "Jurassic Park Gift Shop",
-    "Sentient Cloud City", "Chocolate Factory Gone Wrong", "Upside-Down Skyscraper",
-    "Abandoned Theme Park on Mars", "Inside a Giant's Pocket", "Miniature Golf Course Jungle",
-    "Intergalactic Space Truck Stop", "Zombie-Infested Shopping Mall",
-    "Enchanted Forest of Talking Furniture", "Post-Apocalyptic Ball Pit",
-    "Dimension Where Everything is Made of Cheese"
-  ];
-
   // Initialize LaunchDarkly client
   useEffect(() => {
     const initLDClient = async () => {
-      // Create a new LaunchDarkly client with the correct environment variable
       const client = initialize(process.env.NEXT_PUBLIC_LAUNCHDARKLY_CLIENT_SIDE_ID!, { key: 'anonymous' });
-      // Wait for the client to initialize
       await client.waitForInitialization();
-      // Set the client in state
       setLdClient(client);
-      // Update the scenario prompt using the client
       updateScenarioPrompt(client);
     };
 
@@ -50,7 +30,6 @@ export default function Home() {
 
   // Function to update the scenario prompt using LaunchDarkly
   const updateScenarioPrompt = (client: LDClient) => {
-    // Use LaunchDarkly's AI model prompt flag
     const prompt = client.variation('ai-model-prompt', {
       prompt: 'Generate a survival scenario in 500 characters or less for {celebrity} in {environment}.',
       parameters: {
@@ -58,7 +37,6 @@ export default function Home() {
         environment: '{environment}'
       }
     });
-    // Set the scenario prompt in state
     setScenarioPrompt(prompt.prompt);
   };
 
@@ -76,6 +54,22 @@ export default function Home() {
       setScenario(data.scenario);
     }
   };
+
+  // Lists of celebrities and environments
+  const celebrities = [
+    "Nicolas Cage", "Bad Bunny", "King Charles", "Justin Bieber", "Lady Gaga", "Snoop Dogg", "Martha Stewart", "Kanye West",
+    "Betty White", "Gordon Ramsay", "Beyoncé", "Jeff Goldblum", "Dolly Parton",
+    "Bill Nye the Science Guy", "Flavor Flav", "The Rock's Eyebrow", "Chuck Norris", "Weird Al Yankovic"
+  ];
+
+  const environments = [
+    "Inside a Giant Burrito","Biork Hive Mind", "just Twitter", "The White House", "OnlyFans", "Underwater Disco", "Haunted IKEA", "Jurassic Park Gift Shop",
+    "Sentient Cloud City", "Chocolate Factory Gone Wrong", "Upside-Down Skyscraper",
+    "Abandoned Theme Park on Mars", "Inside a Giant's Pocket", "Miniature Golf Course Jungle",
+    "Intergalactic Space Truck Stop", "Zombie-Infested Shopping Mall",
+    "Enchanted Forest of Talking Furniture", "Post-Apocalyptic Ball Pit",
+    "Dimension Where Everything is Made of Cheese"
+  ];
 
   // Render the component
   return (
