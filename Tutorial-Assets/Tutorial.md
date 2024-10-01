@@ -18,7 +18,7 @@ Install necessary dependencies
 
 ```npm install launchdarkly-react-client-sdk @arcjet/next replicate```
 
-Set up your environment variables.  Start by creating an **.env.local** file in the root of your project and add the following:
+Set up your environment variables.  Start by renaming the existing **.example.env.local** to **.env.local** file in the root of your project and add the following:
 
 ```
 REPLICATE_API_TOKEN=your_replicate_api_token
