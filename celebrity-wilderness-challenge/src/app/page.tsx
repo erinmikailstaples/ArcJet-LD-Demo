@@ -1,19 +1,31 @@
 "use client";
 import { useState } from "react";
+import { useFlags, useLDClient } from "launchdarkly-react-client-sdk";
 
 export default function Home() {
   const [celebrity, setCelebrity] = useState("");
   const [environment, setEnvironment] = useState("");
   const [scenario, setScenario] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const flags = useFlags();
+  const ldClient = useLDClient();
 
   const generateScenario = async () => {
     setIsLoading(true);
     try {
+      const user = {
+        key: 'user-key-123',
+        custom: {
+          celebrity: celebrity,
+          environment: environment
+        }
+      };
+      await ldClient?.identify(user);
+
       const response = await fetch("/api/generate-scenario", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ celebrity, environment }),
+        body: JSON.stringify({ celebrity, environment, promptConfig: flags.aiPromptConfig }),
       });
       const data = await response.json();
       setScenario(data.scenario);
@@ -48,6 +60,7 @@ export default function Home() {
           <select 
             onChange={(e) => setCelebrity(e.target.value)}
             className="p-2 border rounded"
+            aria-label="Select celebrity"
             disabled={isLoading}
           >
             <option value="">Select a celebrity</option>
@@ -58,6 +71,7 @@ export default function Home() {
           <select 
             onChange={(e) => setEnvironment(e.target.value)}
             className="p-2 border rounded"
+            aria-label="Select environment"
             disabled={isLoading}
           >
             <option value="">Select an environment</option>

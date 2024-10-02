@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import dynamic from 'next/dynamic';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -18,6 +19,7 @@ export const metadata: Metadata = {
   description: "Generate hilarious survival scenarios for celebrities in bizarre environments",
 };
 
+const LaunchDarklyProvider = dynamic(() => import('../components/LaunchDarklyProvider'), { ssr: false });
 
 export default function RootLayout({
   children,
@@ -26,10 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <LaunchDarklyProvider>
+          {children}
+        </LaunchDarklyProvider>
       </body>
     </html>
   );
