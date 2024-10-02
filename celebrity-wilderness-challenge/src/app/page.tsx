@@ -5,15 +5,24 @@ export default function Home() {
   const [celebrity, setCelebrity] = useState("");
   const [environment, setEnvironment] = useState("");
   const [scenario, setScenario] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const generateScenario = async () => {
-    const response = await fetch("/api/generate-scenario", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ celebrity, environment }),
-    });
-    const data = await response.json();
-    setScenario(data.scenario);
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/generate-scenario", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ celebrity, environment }),
+      });
+      const data = await response.json();
+      setScenario(data.scenario);
+    } catch (error) {
+      console.error("Failed to generate scenario:", error);
+      setScenario("Failed to generate scenario. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const celebrities = [
@@ -23,7 +32,7 @@ export default function Home() {
   ];
 
   const environments = [
-    "Inside a Giant Burrito", "Biork Hive Mind", "just Twitter", "The White House", "OnlyFans", "Underwater Disco", "Haunted IKEA", "Jurassic Park Gift Shop",
+    "Inside a Giant Burrito", "Biork Hive Mind", "just Twitter", "The White House", "Underwater Disco", "Haunted IKEA", "Jurassic Park Gift Shop",
     "Sentient Cloud City", "Chocolate Factory Gone Wrong", "Upside-Down Skyscraper",
     "Abandoned Theme Park on Mars", "Inside a Giant's Pocket", "Miniature Golf Course Jungle",
     "Intergalactic Space Truck Stop", "Zombie-Infested Shopping Mall",
@@ -39,6 +48,7 @@ export default function Home() {
           <select 
             onChange={(e) => setCelebrity(e.target.value)}
             className="p-2 border rounded"
+            disabled={isLoading}
           >
             <option value="">Select a celebrity</option>
             {celebrities.map((celeb) => (
@@ -48,6 +58,7 @@ export default function Home() {
           <select 
             onChange={(e) => setEnvironment(e.target.value)}
             className="p-2 border rounded"
+            disabled={isLoading}
           >
             <option value="">Select an environment</option>
             {environments.map((env) => (
@@ -56,13 +67,19 @@ export default function Home() {
           </select>
           <button 
             onClick={generateScenario}
-            disabled={!celebrity || !environment}
+            disabled={!celebrity || !environment || isLoading}
             className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300"
           >
-            Generate Scenario
+            {isLoading ? 'Generating...' : 'Generate Scenario'}
           </button>
         </div>
-        {scenario && (
+        {isLoading && (
+          <div className="mt-4 p-4 bg-gray-100 rounded text-gray-800">
+            <p className="text-center">Generating your hilarious scenario...</p>
+            <div className="loader mt-2"></div>
+          </div>
+        )}
+        {!isLoading && scenario && (
           <div className="mt-4 p-4 bg-gray-100 rounded text-gray-800">
             <h2 className="text-xl font-semibold mb-2 text-gray-900">Survival Scenario:</h2>
             <p>{scenario}</p>
