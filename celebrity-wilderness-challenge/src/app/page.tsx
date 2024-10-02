@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useFlags, useLDClient } from "launchdarkly-react-client-sdk";
 
 export default function Home() {
@@ -9,7 +9,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const flags = useFlags();
   const ldClient = useLDClient();
-
+  
   const generateScenario = async () => {
     setIsLoading(true);
     try {
@@ -21,13 +21,26 @@ export default function Home() {
         }
       };
       await ldClient?.identify(user);
-
+  
+      console.log("Sending request with:", { celebrity, environment });
+  
       const response = await fetch("/api/generate-scenario", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ celebrity, environment, promptConfig: flags.aiPromptConfig }),
       });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
       const data = await response.json();
+      console.log("Received response:", data);
+  
+      if (data.error) {
+        throw new Error(data.error);
+      }
+  
       setScenario(data.scenario);
     } catch (error) {
       console.error("Failed to generate scenario:", error);
@@ -35,7 +48,8 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }
+
 
   const celebrities = [
     "Nicolas Cage", "Bad Bunny", "King Charles", "Justin Bieber", "Lady Gaga", "Snoop Dogg", "Martha Stewart", "Kanye West",
@@ -52,12 +66,14 @@ export default function Home() {
     "Dimension Where Everything is Made of Cheese"
   ];
 
+ 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] bg-white text-gray-800">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1 className="text-2xl font-bold text-gray-900">Celebrity Wilderness Challenge Simulator</h1>
         <div className="flex flex-col gap-4">
           <select 
+            value={celebrity}
             onChange={(e) => setCelebrity(e.target.value)}
             className="p-2 border rounded"
             aria-label="Select celebrity"
@@ -69,6 +85,7 @@ export default function Home() {
             ))}
           </select>
           <select 
+            value={environment}
             onChange={(e) => setEnvironment(e.target.value)}
             className="p-2 border rounded"
             aria-label="Select environment"
