@@ -1,5 +1,7 @@
-import { ArcjetNext } from "@arcjet/next";
+import { arcjet } from "@arcjet/next";
 
-export const arcjet = new ArcjetNext({
-  apiKey: process.env.ARCJET_API_KEY,
-});
+export function createArcjet() {
+  return arcjet({
+    apiKey: process.env.ARCJET_API_KEY,
+  });
+}

@@ -7,49 +7,57 @@ export default function Home() {
   const [environment, setEnvironment] = useState("");
   const [scenario, setScenario] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [email, setEmail] = useState("");
   const flags = useFlags();
   const ldClient = useLDClient();
-  
+
+  const identifyUser = async () => {
+    if (ldClient) {
+      const isDirector = /@directordude\.com$/.test(email);
+      await ldClient.identify({
+        key: email,
+        email: email,
+        custom: {
+          isDirector: isDirector
+        }
+      });
+    }
+  };
+
   const generateScenario = async () => {
     setIsLoading(true);
     try {
-      const user = {
-        key: 'user-key-123',
-        custom: {
-          celebrity: celebrity,
-          environment: environment
-        }
-      };
-      await ldClient?.identify(user);
-  
-      console.log("Sending request with:", { celebrity, environment });
-  
+      await identifyUser();
+
+      const context = ldClient?.getContext();
+      const userId = context?.key || "anonymous";
+      const isDirector = context?.custom?.isDirector || false;
+
+      console.log("Sending request with:", { celebrity, environment, userId, isDirector });
+
       const response = await fetch("/api/generate-scenario", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ celebrity, environment, promptConfig: flags.aiPromptConfig }),
+        body: JSON.stringify({ celebrity, environment, promptConfig: flags.aiPromptConfig, userId, isDirector }),
       });
-  
+
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error("Rate limit exceeded. Please try again later.");
+        }
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       console.log("Received response:", data);
-  
-      if (data.error) {
-        throw new Error(data.error);
-      }
-  
       setScenario(data.scenario);
     } catch (error) {
       console.error("Failed to generate scenario:", error);
-      setScenario("Failed to generate scenario. Please try again.");
+      setScenario(error.message || "Failed to generate scenario. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }
-
+  };
 
   const celebrities = [
     "Nicolas Cage", "Bad Bunny", "King Charles", "Justin Bieber", "Lady Gaga", "Snoop Dogg", "Martha Stewart", "Kanye West",
@@ -66,12 +74,20 @@ export default function Home() {
     "Dimension Where Everything is Made of Cheese"
   ];
 
- 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)] bg-white text-gray-800">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1 className="text-2xl font-bold text-gray-900">Celebrity Wilderness Challenge Simulator</h1>
         <div className="flex flex-col gap-4">
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your email"
+            className="p-2 border rounded"
+            aria-label="Enter email"
+            disabled={isLoading}
+          />
           <select 
             value={celebrity}
             onChange={(e) => setCelebrity(e.target.value)}
@@ -98,7 +114,7 @@ export default function Home() {
           </select>
           <button 
             onClick={generateScenario}
-            disabled={!celebrity || !environment || isLoading}
+            disabled={!celebrity || !environment || !email || isLoading}
             className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300"
           >
             {isLoading ? 'Generating...' : 'Generate Scenario'}

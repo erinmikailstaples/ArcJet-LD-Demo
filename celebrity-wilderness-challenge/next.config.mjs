@@ -12,6 +12,9 @@ const nextConfig = {
     }
     return config;
   },
+  env: {
+    ARCJET_API_KEY: process.env.ARCJET_API_KEY,
+  },
 };
 
 export default nextConfig;
