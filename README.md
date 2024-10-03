@@ -9,9 +9,8 @@ App generates an AI-powered survival scenario and outcome
 
 ### User Roles and Rate Limits:
 
-Couch Potato: 3 scenarios per hour
-Survivalist Fanatic: 10 scenarios per hour
-Reality TV Producer: 20 scenarios per hour
+Director: unlimited
+not Director: no rate limits
 
 ### LaunchDarkly will handle:
 
